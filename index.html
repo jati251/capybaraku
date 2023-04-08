@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masbroku</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div class='container' id="home">
+        <div class="box" id="menu">
+            <div id="menuName">
+                <h2>Ayo bermain bersama</h2>
+                <h1>Masbro.</h1>
+                <p>Si capybara yang selalu ceria!</p>
+            </div>
+            <form>
+                <input type="text" id="myText" placeholder="Masukan nama kamu disini"><br>
+                <button type="button" id="myButton">Mulai bermain</button>
+            </form>
+            <p id='kosong' style="display: none;">Nama harus diisi!</p>
+        </div>
+    </div>
+    <audio id='audio' controls autoplay loop>
+        <source src="2audio.mp3" type="audio/mpeg" preload="auto">
+    </audio>
+
+    <script>
+        document.getElementById('myButton').onclick = () => {
+            const nama = document.getElementById('myText');
+            if (nama.value === '' || !nama.value) {
+                kosong.style.display = 'inline';
+            } else {
+                nameValue=nama.value
+                localStorage.setItem("nama", nameValue);
+                location.href = "./homepage.html";
+            }
+        };
+    </script>
+    <script type="module" src="index.js"></script>
+</body>
+
+</html>

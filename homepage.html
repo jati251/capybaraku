@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masbroku</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div class='container' id="intro">
+        <div id="logo">
+            <img src="cap.gif" id="kap">
+        </div>
+        <div class="box">
+            <h2 id="page-name">a</h2>
+            <h2>Sudah siap main belum??</h2>
+            <form>
+                <button type="button" id="button1">sudah</button>
+            </form>
+            <form>
+                <button type="button" id="button-back">Kembali</button>
+            </form>
+        </div>
+    </div>
+    <audio id='audio' controls autoplay loop>
+        <source src="2audio.mp3" type="audio/mpeg" preload="auto">
+    </audio>
+    <script>
+        let name = localStorage.getItem('nama')
+        let pageName = document.getElementById('page-name')
+        pageName.innerHTML = `Haloo ${name} !`
+
+        document.getElementById('button1').onclick = function () {
+
+        }
+
+        document.getElementById('button-back').onclick = function () {
+            location.href = "index.html";
+        };
+
+    </script>
+    <script type="module" src="homepage.js"></script>
+</body>
+
+</html>

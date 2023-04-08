@@ -1,0 +1,127 @@
+body {
+    text-align: center;
+    background-color: #FFB703;
+}
+
+.container {
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+}
+
+
+#button1 {
+    margin-bottom: 2%;
+}
+
+#kosong {
+    color: red;
+}
+
+#kap {
+  padding: 5px;
+  width: 80%;
+}
+
+#audio {
+    position: relative;
+    top: 24vh;
+    height: 3vh;
+    width: 20vh;
+}
+
+input[type=text] {
+    width: 50%;
+    border: 2px solid #aaa;
+    border-radius: 10px;
+    margin: 8px 0;
+    outline: none;
+    padding: 8px;
+    box-sizing: border-box;
+    transition: .3s;
+}
+
+input[type=text]:focus {
+    border-color: #1899D6;
+    box-shadow: 0 0 8px 0 #1CB0F6;
+}
+
+
+#myButton {
+    background-color: #023047;
+    border: solid transparent;
+    border-radius: 10px;
+    border-width: 0 0 4px;
+    box-sizing: border-box;
+    color: #dcf7ff;
+    cursor: pointer;
+    display: inline-block;
+    line-height: 20px;
+    margin: 0;
+    outline: none;
+    overflow: visible;
+    padding: 13px 16px;
+    text-align: center;
+    text-transform: uppercase;
+    touch-action: manipulation;
+    transform: translateZ(0);
+    transition: filter .2s;
+    user-select: none;
+    -webkit-user-select: none;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 40%;
+}
+
+#myButton:after {
+    background-clip: padding-box;
+    background-color: #219EBC;
+    border: solid transparent;
+    border-radius: 10px;
+    border-width: 0 0 4px;
+    bottom: -4px;
+    content: "";
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: -1;
+}
+
+#myButton:after {
+    background-clip: padding-box;
+    background-color: #219EBC;
+    border: solid transparent;
+    border-radius: 10px;
+    border-width: 0 0 4px;
+    bottom: -4px;
+    content: "";
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: -1;
+}
+
+#myButton:main,
+.button-19:focus {
+    user-select: auto;
+}
+
+#myButton:hover:not(:disabled) {
+    filter: brightness(1.1);
+    -webkit-filter: brightness(1.1);
+}
+
+#myButton:disabled {
+    cursor: auto;
+}
+
+.box{
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: red;
+    width: auto
+}
