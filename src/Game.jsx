@@ -9,7 +9,7 @@ const Game = ({ onBack }) => {
   const [highScore, setHighScore] = useState(parseInt(localStorage.getItem('capyScore')) || 0)
   const scoreRef = useRef(0)
   
-  // Logical dimensions for game scaling
+  const audioCtxRef = useRef(null)
   const [dims, setDims] = useState({ w: 800, h: 400 })
 
   const gameState = useRef({
@@ -32,8 +32,26 @@ const Game = ({ onBack }) => {
     level: 1
   })
 
+  const playSound = (freq, type, duration, vol = 0.05) => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)()
+    }
+    const ctx = audioCtxRef.current
+    if (ctx.state === 'suspended') ctx.resume()
+    
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.type = type
+    osc.frequency.setValueAtTime(freq, ctx.currentTime)
+    gain.gain.setValueAtTime(vol, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration)
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.start()
+    osc.stop(ctx.currentTime + duration)
+  }
+
   useEffect(() => {
-    // Detect mobile for vertical aspect ratio
     const isMobile = window.innerWidth < 768
     const newDims = isMobile ? { w: 500, h: 600 } : { w: 800, h: 400 }
     setDims(newDims)
@@ -45,22 +63,6 @@ const Game = ({ onBack }) => {
 
     const capyImg = new Image()
     capyImg.src = '/cap.gif'
-
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
-
-    const playSound = (freq, type, duration) => {
-      if (audioCtx.state === 'suspended') audioCtx.resume()
-      const osc = audioCtx.createOscillator()
-      const gain = audioCtx.createGain()
-      osc.type = type
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime)
-      gain.gain.setValueAtTime(0.05, audioCtx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration)
-      osc.connect(gain)
-      gain.connect(audioCtx.destination)
-      osc.start()
-      osc.stop(audioCtx.currentTime + duration)
-    }
 
     const handleJump = (e) => {
       if (e) e.preventDefault()
@@ -116,7 +118,7 @@ const Game = ({ onBack }) => {
       if (newLevel !== gameState.current.level) {
         gameState.current.level = newLevel
         setLevel(newLevel)
-        playSound(600, 'sine', 0.3)
+        playSound(600, 'sine', 0.3, 0.1)
       }
 
       // Spawn Decorations
@@ -133,7 +135,7 @@ const Game = ({ onBack }) => {
         if (c.x + c.width < 0) clouds.splice(i, 1)
       })
 
-      // Spawn Obstacles (Randomized by level)
+      // Spawn Obstacles
       const spawnInterval = Math.max(50, 140 - Math.floor(speed * 10) - (newLevel * 5))
       if (gameState.current.frame % spawnInterval === 0) {
         const canBird = newLevel >= 2
@@ -162,7 +164,7 @@ const Game = ({ onBack }) => {
         ) {
           gameState.current.gameActive = false
           setGameOver(true)
-          playSound(150, 'sawtooth', 0.5)
+          playSound(150, 'sawtooth', 0.5, 0.15) // Louder hit sound
           return
         }
 
@@ -180,13 +182,11 @@ const Game = ({ onBack }) => {
     const draw = () => {
       ctx.clearRect(0, 0, newDims.w, newDims.h)
 
-      // Background Level Shift
       if (gameState.current.level === 4) {
         ctx.fillStyle = 'rgba(255, 0, 0, 0.05)'
         ctx.fillRect(0, 0, newDims.w, newDims.h)
       }
 
-      // Draw Decorations
       ctx.fillStyle = 'rgba(255, 255, 255, 0.15)'
       gameState.current.clouds.forEach(c => {
         ctx.beginPath()
@@ -194,7 +194,6 @@ const Game = ({ onBack }) => {
         ctx.fill()
       })
 
-      // Draw Ground
       ctx.strokeStyle = gameState.current.level === 4 ? '#ff4d4d' : 'rgba(255, 183, 3, 0.4)'
       ctx.lineWidth = 3
       ctx.beginPath()
@@ -202,7 +201,6 @@ const Game = ({ onBack }) => {
       ctx.lineTo(newDims.w, newDims.h - 20)
       ctx.stroke()
 
-      // Draw Masbro
       const { player } = gameState.current
       ctx.save()
       ctx.translate(player.x + player.width, player.y)
@@ -210,7 +208,6 @@ const Game = ({ onBack }) => {
       ctx.drawImage(capyImg, 0, 0, player.width, player.height)
       ctx.restore()
 
-      // Draw Obstacles
       gameState.current.obstacles.forEach(obs => {
         if (obs.type === 'bird') {
           ctx.strokeStyle = '#ff4d4d'
@@ -244,7 +241,7 @@ const Game = ({ onBack }) => {
       cancelAnimationFrame(animationId)
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, []) // Stability preserved
+  }, [])
 
   useEffect(() => {
     if (gameOver && score > highScore) {
@@ -252,6 +249,24 @@ const Game = ({ onBack }) => {
       localStorage.setItem('capyScore', score)
     }
   }, [gameOver, score])
+
+  const handleMobileJump = (e) => {
+    e.preventDefault()
+    if (!gameState.current.gameActive) return
+    
+    if (!gameState.current.isReady) {
+      setIsReady(true)
+      gameState.current.isReady = true
+      return
+    }
+
+    const { player } = gameState.current
+    if (player.isGrounded) {
+      player.dy = -player.jumpForce
+      player.isGrounded = false
+      playSound(400, 'square', 0.1)
+    }
+  }
 
   return (
     <div className="w-full flex flex-col items-center gap-4 max-w-4xl mx-auto">
@@ -272,19 +287,13 @@ const Game = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Canvas Area with Dynamic Aspect Ratio */}
+        {/* Canvas Area */}
         <div 
           className="relative w-full bg-gradient-to-b from-dark/80 to-accent/20 rounded-2xl border border-white/10 overflow-hidden shadow-inner transition-all duration-500"
           style={{ aspectRatio: `${dims.w} / ${dims.h}` }}
         >
-          <canvas 
-            ref={canvasRef} 
-            width={dims.w} 
-            height={dims.h} 
-            className="w-full h-full block" 
-          />
+          <canvas ref={canvasRef} width={dims.w} height={dims.h} className="w-full h-full block" />
           
-          {/* Overlays */}
           {gameOver && (
             <div className="absolute inset-0 bg-dark/95 backdrop-blur-md flex flex-col items-center justify-center p-4 z-50 text-center animate-in fade-in zoom-in duration-300">
               <h1 className="text-3xl md:text-6xl font-black text-white mb-2 drop-shadow-lg tracking-tighter">MASBRO NABRAK!</h1>
@@ -313,14 +322,7 @@ const Game = ({ onBack }) => {
           <div className="mt-4 sm:hidden w-full">
             <button 
               className="w-full h-24 bg-gradient-to-b from-secondary/40 to-primary/40 border-2 border-secondary rounded-2xl text-white font-black text-xl active:scale-95 transition-all shadow-lg active:shadow-inner"
-              onTouchStart={(e) => {
-                e.preventDefault()
-                const { player } = gameState.current
-                if (player.isGrounded) {
-                  player.dy = -player.jumpForce
-                  player.isGrounded = false
-                }
-              }}
+              onTouchStart={handleMobileJump}
             >
               LOMPAT!
             </button>
