@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #fb8500;
+  --color-secondary: #ffb703;
+  --color-accent: #219ebc;
+  --color-dark: #023047;
+  --color-light: #8ecae6;
+  
+  --font-outfit: "Outfit", sans-serif;
+  
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 3s infinite;
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+  }
+}
+
+@layer base {
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+  body {
+    @apply font-outfit bg-dark text-white min-h-screen overflow-x-hidden;
+    background: linear-gradient(135deg, #023047 0%, #219ebc 100%);
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    @apply fixed inset-0 opacity-15 pointer-events-none;
+    background: url('/3d.gif') no-repeat center center;
+    background-size: cover;
+    z-index: -1;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/15 backdrop-blur-xl border border-white/20 rounded-[32px] p-4 md:p-10 shadow-2xl;
+  }
+  
+  .btn-beast {
+    @apply w-full py-4 px-8 rounded-xl font-bold uppercase tracking-wider transition-all duration-300;
+    @apply bg-gradient-to-r from-secondary to-primary text-dark shadow-lg shadow-primary/20;
+    @apply hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply w-full py-4 px-8 rounded-xl font-bold uppercase tracking-wider transition-all duration-300;
+    @apply bg-white/10 border border-white/20 text-white hover:bg-white/20;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-dark;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-primary rounded-full hover:bg-secondary;
+}
